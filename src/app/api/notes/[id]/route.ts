@@ -105,10 +105,12 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const content = typeof body === "object" && body !== null ? (body as Record<string, unknown>).content : undefined;
+  const payload = typeof body === "object" && body !== null ? (body as Record<string, unknown>) : null;
+  const content = typeof payload?.content === "string" ? payload.content : undefined;
+  const title = typeof payload?.title === "string" ? payload.title : undefined;
 
-  if (typeof content !== "string") {
-    return NextResponse.json({ error: "Content is required." }, { status: 400 });
+  if (typeof content !== "string" && typeof title !== "string") {
+    return NextResponse.json({ error: "Nothing to update." }, { status: 400 });
   }
 
   const supabase = getSupabaseAdminClient();
@@ -133,9 +135,17 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const updateData: Record<string, unknown> = {};
+  if (typeof content === "string") {
+    updateData.content = content;
+  }
+  if (typeof title === "string") {
+    updateData.title = title;
+  }
+
   const { data: updatedNote, error: updateError } = await supabase
     .from("notes")
-    .update({ content })
+    .update(updateData)
     .eq("id", params.id)
     .eq("user_id", userId)
     .select()

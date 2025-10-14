@@ -110,6 +110,7 @@ export function DashboardView() {
   const [activeStyles, setActiveStyles] = React.useState<WritingStyle[]>(WRITING_STYLES);
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [editedContent, setEditedContent] = React.useState("");
+  const [editedTitle, setEditedTitle] = React.useState("");
   const [isSaving, setIsSaving] = React.useState(false);
 
   const mediaRecorderRef = React.useRef<MediaRecorder | null>(null);
@@ -178,8 +179,10 @@ export function DashboardView() {
   React.useEffect(() => {
     if (selectedNote) {
       setEditedContent(selectedNote.content ?? "");
+      setEditedTitle(selectedNote.title ?? "");
     } else {
       setEditedContent("");
+      setEditedTitle("");
       setShowTranscript(false);
       setIsSaving(false);
     }
@@ -425,7 +428,7 @@ export function DashboardView() {
       return;
     }
 
-    if (editedContent === selectedNote.content) {
+    if (editedContent === selectedNote.content && editedTitle === selectedNote.title) {
       createToast("No changes to save.");
       return;
     }
@@ -438,7 +441,7 @@ export function DashboardView() {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ content: editedContent }),
+        body: JSON.stringify({ content: editedContent, title: editedTitle }),
       });
 
       if (!response.ok) {
@@ -454,10 +457,14 @@ export function DashboardView() {
           prevNotes.map((note) => (note.id === updatedNote.id ? updatedNote : note)),
         );
       } else {
-        setSelectedNote((prev) => (prev ? { ...prev, content: editedContent } : prev));
+        setSelectedNote((prev) =>
+          prev ? { ...prev, content: editedContent, title: editedTitle } : prev,
+        );
         setNotes((prevNotes) =>
           prevNotes.map((note) =>
-            note.id === selectedNote.id ? { ...note, content: editedContent } : note,
+            note.id === selectedNote.id
+              ? { ...note, content: editedContent, title: editedTitle }
+              : note,
           ),
         );
       }
@@ -469,7 +476,7 @@ export function DashboardView() {
     } finally {
       setIsSaving(false);
     }
-  }, [createToast, editedContent, selectedNote]);
+  }, [createToast, editedContent, editedTitle, selectedNote]);
 
   const usedNotes = Math.min(total, MAX_FREE_NOTES);
 
@@ -748,7 +755,15 @@ export function DashboardView() {
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                   <div className="max-w-2xl">
                     <div className="text-sm uppercase tracking-wider text-white/70">{selectedNote.style_name}</div>
-                    <DialogTitle className="mt-2 text-3xl font-semibold">{selectedNote.title}</DialogTitle>
+                    <DialogTitle asChild className="mt-2 w-full">
+                      <input
+                        aria-label="Edit note title"
+                        value={editedTitle}
+                        onChange={(event) => setEditedTitle(event.target.value)}
+                        className="w-full rounded-xl bg-transparent px-3 py-2 text-3xl font-semibold text-white outline-none ring-white/25 transition focus:ring-2"
+                        placeholder="Untitled note"
+                      />
+                    </DialogTitle>
                   </div>
                   <div className="flex items-center gap-3 self-end md:self-start">
                     <Tooltip>
@@ -818,7 +833,11 @@ export function DashboardView() {
                   </Button>
                   <Button
                     className="rounded-full bg-white px-6 text-sm font-semibold text-[#0b1e3f] hover:bg-white/90"
-                    disabled={isSaving || editedContent === selectedNote.content}
+                    disabled={
+                      isSaving ||
+                      (editedContent === selectedNote.content &&
+                        editedTitle === selectedNote.title)
+                    }
                     onClick={handleSaveNote}
                   >
                     {isSaving ? (

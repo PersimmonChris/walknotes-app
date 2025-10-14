@@ -1,9 +1,32 @@
 import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import { Clock, FileText, Globe, Mic, ShieldCheck, Sparkles, Share2 } from "lucide-react";
+import { ChevronDown, Clock, FileText, Globe, Mic, ShieldCheck, Sparkles, Share2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
+  const faqs = [
+    {
+      question: "Do I need to be online to record?",
+      answer:
+        "No. WalkNotes caches recordings offline and syncs them once you reconnect, so you never lose a thought.",
+    },
+    {
+      question: "What styles can I choose from?",
+      answer:
+        "Start with built-in presets like product update, meeting recap, investor memo, coaching session, and craft your own tone.",
+    },
+    {
+      question: "Can I export my notes?",
+      answer:
+        "Yes. Send polished notes to email, Notion, Google Drive, or download as Markdown with one tap.",
+    },
+    {
+      question: "Is my data secure?",
+      answer:
+        "Recordings are encrypted in transit and at rest. You control retention periods, and we never train models on your data.",
+    },
+  ];
+
   return (
     <div className="relative min-h-screen w-full bg-white text-slate-900">
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-8">
@@ -269,7 +292,7 @@ export default function Home() {
               Simple, transparent pricing designed for builders who prefer ownership over subscriptions.
             </p>
           </div>
-          <div className="grid gap-8 md:grid-cols-[1.1fr_0.9fr]">
+          <div className="grid gap-8 md:grid-cols-2">
             <div className="flex flex-col justify-between gap-8 rounded-3xl border border-[#0b1e3f]/15 bg-[#f7f6f2] p-10 shadow-lg">
               <div className="flex flex-col gap-5">
                 <span className="self-start rounded-full bg-[#0b1e3f]/10 px-4 py-1 text-sm font-medium text-[#0b1e3f]">
@@ -306,15 +329,36 @@ export default function Home() {
                 </Button>
               </SignedIn>
             </div>
-            <div className="flex h-full flex-col justify-center gap-6 rounded-3xl border border-dashed border-[#0b1e3f]/30 bg-white p-8 text-slate-700">
-              <h4 className="text-xl font-semibold text-[#0b1e3f]">Need to try before you buy?</h4>
-              <p>
-                Record five sessions on the free plan and keep every transcript. Upgrade when you are ready for
-                unlimited sessions and premium styles.
-              </p>
-              <Button asChild variant="secondary" size="lg" className="self-start">
-                <Link href="#faq">See what&apos;s included</Link>
-              </Button>
+            <div className="flex flex-col justify-between gap-8 rounded-3xl border border-[#0b1e3f]/15 bg-[#f7f6f2] p-10 shadow-lg">
+              <div className="flex flex-col gap-5">
+                <span className="self-start rounded-full bg-[#0b1e3f]/10 px-4 py-1 text-sm font-medium text-[#0b1e3f]">
+                  Free plan
+                </span>
+                <h3 className="text-4xl font-semibold text-[#0b1e3f]">$0</h3>
+                <p className="text-base text-slate-600">
+                  Try WalkNotes and keep your first notes while you explore the workflow.
+                </p>
+                <ul className="flex flex-col gap-3 text-sm text-slate-700">
+                  {["3 notes", "AI writing styles with tone presets and templates"].map((benefit) => (
+                    <li key={benefit} className="flex items-start gap-2">
+                      <span className="mt-1 h-2 w-2 rounded-full bg-[#0b1e3f]" />
+                      <span>{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <SignedOut>
+                <SignUpButton mode="modal" redirectUrl="/dashboard">
+                  <Button size="lg" className="w-full">
+                    Record now
+                  </Button>
+                </SignUpButton>
+              </SignedOut>
+              <SignedIn>
+                <Button asChild size="lg" className="w-full">
+                  <Link href="/dashboard">Record now</Link>
+                </Button>
+              </SignedIn>
             </div>
           </div>
         </section>
@@ -333,7 +377,7 @@ export default function Home() {
             <SignedOut>
               <SignUpButton mode="modal" redirectUrl="/dashboard">
                 <Button size="lg" className="min-w-[200px] bg-white text-[#0b1e3f] hover:bg-white/90">
-                  Start for free
+                  Record now
                 </Button>
               </SignUpButton>
             </SignedOut>
@@ -342,9 +386,6 @@ export default function Home() {
                 <Link href="/dashboard">Record now</Link>
               </Button>
             </SignedIn>
-            <Button asChild variant="secondary" size="lg">
-              <Link href="#pricing">View pricing</Link>
-            </Button>
           </div>
         </section>
 
@@ -355,33 +396,18 @@ export default function Home() {
               Everything you need to know before bringing WalkNotes into your routine.
             </p>
           </div>
-          <div className="grid gap-6 md:grid-cols-2">
-            {[
-              {
-                question: "Do I need to be online to record?",
-                answer:
-                  "No. WalkNotes caches recordings offline and syncs them once you reconnect, so you never lose a thought.",
-              },
-              {
-                question: "What styles can I choose from?",
-                answer:
-                  "Start with built-in presets like product update, meeting recap, investor memo, coaching session, and craft your own tone.",
-              },
-              {
-                question: "Can I export my notes?",
-                answer:
-                  "Yes. Send polished notes to email, Notion, Google Drive, or download as Markdown with one tap.",
-              },
-              {
-                question: "Is my data secure?",
-                answer:
-                  "Recordings are encrypted in transit and at rest. You control retention periods, and we never train models on your data.",
-              },
-            ].map(({ question, answer }) => (
-              <div key={question} className="rounded-3xl border border-[#0b1e3f]/15 bg-white p-8 shadow-sm">
-                <h3 className="text-xl font-semibold text-[#0b1e3f]">{question}</h3>
-                <p className="mt-3 text-base text-slate-600">{answer}</p>
-              </div>
+          <div className="flex flex-col gap-4">
+            {faqs.map(({ question, answer }) => (
+              <details
+                key={question}
+                className="group rounded-3xl border border-[#0b1e3f]/15 bg-white p-6 shadow-sm transition open:shadow-md"
+              >
+                <summary className="flex cursor-pointer items-center justify-between gap-4 text-left text-lg font-semibold text-[#0b1e3f] [&::-webkit-details-marker]:hidden">
+                  {question}
+                  <ChevronDown className="h-5 w-5 text-[#0b1e3f] transition group-open:rotate-180" />
+                </summary>
+                <p className="mt-4 text-base text-slate-600">{answer}</p>
+              </details>
             ))}
           </div>
         </section>
