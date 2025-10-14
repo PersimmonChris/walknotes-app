@@ -52,7 +52,11 @@ export default function Home() {
         </nav>
         <nav className="flex items-center gap-3">
           <SignedOut>
-            <SignInButton mode="modal" redirectUrl="/dashboard">
+            <SignInButton
+              mode="modal"
+              forceRedirectUrl="/dashboard"
+              fallbackRedirectUrl="/dashboard"
+            >
               <Button variant="ghost" className="text-sm font-medium">
                 Log In
               </Button>
@@ -82,7 +86,11 @@ export default function Home() {
             </p>
             <SignedOut>
               <div className="flex flex-col gap-4 sm:flex-row">
-                <SignUpButton mode="modal" redirectUrl="/dashboard">
+                <SignUpButton
+                  mode="modal"
+                  forceRedirectUrl="/dashboard"
+                  fallbackRedirectUrl="/dashboard"
+                >
                   <Button size="lg" className="px-10">
                     Sign Up for Free
                   </Button>
@@ -317,7 +325,11 @@ export default function Home() {
                 </ul>
               </div>
               <SignedOut>
-                <SignUpButton mode="modal" redirectUrl="/dashboard">
+                <SignUpButton
+                  mode="modal"
+                  forceRedirectUrl="/dashboard"
+                  fallbackRedirectUrl="/dashboard"
+                >
                   <Button size="lg" className="w-full">
                     Get lifetime access
                   </Button>
@@ -348,7 +360,11 @@ export default function Home() {
                 </ul>
               </div>
               <SignedOut>
-                <SignUpButton mode="modal" redirectUrl="/dashboard">
+                <SignUpButton
+                  mode="modal"
+                  forceRedirectUrl="/dashboard"
+                  fallbackRedirectUrl="/dashboard"
+                >
                   <Button size="lg" className="w-full">
                     Record now
                   </Button>
@@ -375,7 +391,11 @@ export default function Home() {
           </div>
           <div className="flex flex-col gap-4 sm:flex-row">
             <SignedOut>
-              <SignUpButton mode="modal" redirectUrl="/dashboard">
+              <SignUpButton
+                mode="modal"
+                forceRedirectUrl="/dashboard"
+                fallbackRedirectUrl="/dashboard"
+              >
                 <Button size="lg" className="min-w-[200px] bg-white text-[#0b1e3f] hover:bg-white/90">
                   Record now
                 </Button>

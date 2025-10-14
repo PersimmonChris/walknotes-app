@@ -3,16 +3,23 @@ import { auth } from "@clerk/nextjs/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/server-client";
 import { getServerEnv } from "@/lib/env";
 import { logError, logInfo } from "@/lib/logger";
+import type { Database } from "@/types/database";
 
 export const runtime = "nodejs";
 
+type NotesTable = Database["public"]["Tables"]["notes"];
+type NoteRow = NotesTable["Row"];
+type NoteUpdate = NotesTable["Update"];
+
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export async function DELETE(_request: NextRequest, { params }: RouteParams) {
+export async function DELETE(_request: NextRequest, context: RouteParams) {
+  const { id } = await context.params;
+
   const authResult = await auth();
   const { userId } = authResult;
 
@@ -24,16 +31,16 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   const env = getServerEnv();
 
   const { data: note, error: fetchError } = await supabase
-    .from("notes")
+    .from<"notes", NotesTable>("notes")
     .select("id, audio_path, user_id, style_name")
-    .eq("id", params.id)
-    .single();
+    .eq("id", id)
+    .single<Pick<NoteRow, "id" | "audio_path" | "user_id" | "style_name">>();
 
   if (fetchError || !note) {
     logError(
       "notes.delete.fetch_failed",
       "Failed to locate note for deletion",
-      { userId, noteId: params.id },
+      { userId, noteId: id },
       fetchError,
     );
     return NextResponse.json({ error: "Note not found." }, { status: 404 });
@@ -46,14 +53,14 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   const { error: deleteError } = await supabase
     .from("notes")
     .delete()
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("user_id", userId);
 
   if (deleteError) {
     logError(
       "notes.delete.failed",
       "Failed to delete note record",
-      { userId, noteId: params.id },
+      { userId, noteId: id },
       deleteError,
     );
     return NextResponse.json({ error: "Unable to delete note." }, { status: 500 });
@@ -68,7 +75,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       logError(
         "notes.delete.storage_failed",
         "Deleted note but failed to remove audio from storage",
-        { userId, noteId: params.id, path: note.audio_path },
+        { userId, noteId: id, path: note.audio_path },
         storageError,
       );
     }
@@ -76,14 +83,16 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
 
   logInfo("notes.delete.success", "Note deleted", {
     userId,
-    noteId: params.id,
+    noteId: id,
     styleName: note.style_name,
   });
 
   return NextResponse.json({ success: true });
 }
 
-export async function PATCH(request: NextRequest, { params }: RouteParams) {
+export async function PATCH(request: NextRequest, context: RouteParams) {
+  const { id } = await context.params;
+
   const authResult = await auth();
   const { userId } = authResult;
 
@@ -99,7 +108,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     logError(
       "notes.update.invalid_json",
       "Received invalid JSON while updating note",
-      { userId, noteId: params.id },
+      { userId, noteId: id },
       error,
     );
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
@@ -116,16 +125,16 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   const supabase = getSupabaseAdminClient();
 
   const { data: note, error: fetchError } = await supabase
-    .from("notes")
+    .from<"notes", NotesTable>("notes")
     .select("id, user_id")
-    .eq("id", params.id)
-    .single();
+    .eq("id", id)
+    .single<Pick<NoteRow, "id" | "user_id">>();
 
   if (fetchError || !note) {
     logError(
       "notes.update.fetch_failed",
       "Failed to locate note for update",
-      { userId, noteId: params.id },
+      { userId, noteId: id },
       fetchError,
     );
     return NextResponse.json({ error: "Note not found." }, { status: 404 });
@@ -135,7 +144,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const updateData: Record<string, unknown> = {};
+  const updateData: NoteUpdate = {};
   if (typeof content === "string") {
     updateData.content = content;
   }
@@ -144,18 +153,18 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   }
 
   const { data: updatedNote, error: updateError } = await supabase
-    .from("notes")
+    .from<"notes", NotesTable>("notes")
     .update(updateData)
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("user_id", userId)
     .select()
-    .single();
+    .single<NoteRow>();
 
   if (updateError || !updatedNote) {
     logError(
       "notes.update.failed",
       "Failed to update note content",
-      { userId, noteId: params.id },
+      { userId, noteId: id },
       updateError,
     );
     return NextResponse.json({ error: "Unable to save note." }, { status: 500 });
@@ -163,7 +172,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
   logInfo("notes.update.success", "Note content updated", {
     userId,
-    noteId: params.id,
+    noteId: id,
   });
 
   return NextResponse.json({ note: updatedNote });

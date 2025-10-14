@@ -56,6 +56,7 @@ export interface Database {
           updated_at?: string;
           last_error?: string | null;
         };
+        Relationships: [];
       };
     };
     Views: Record<string, never>;

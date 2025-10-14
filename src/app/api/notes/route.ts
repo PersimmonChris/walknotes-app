@@ -7,12 +7,16 @@ import { getServerEnv } from "@/lib/env";
 import { getWritingStyleById, WRITING_STYLES } from "@/lib/styles";
 import { logError, logInfo } from "@/lib/logger";
 import { transcribeAudio, rewriteTranscript } from "@/lib/ai";
+import type { Database } from "@/types/database";
 
 export const runtime = "nodejs";
 
 const MAX_FREE_NOTES = 3;
 const DEFAULT_PAGE_SIZE = 6;
 
+type NotesTable = Database["public"]["Tables"]["notes"];
+type NoteRow = NotesTable["Row"];
+type NoteInsert = NotesTable["Insert"];
 export async function GET(request: NextRequest) {
   const authResult = await auth();
   const { userId } = authResult;
@@ -32,7 +36,7 @@ export async function GET(request: NextRequest) {
   const to = from + safePageSize - 1;
 
   const { data, error, count } = await supabase
-    .from("notes")
+    .from<"notes", NotesTable>("notes")
     .select("*", { count: "exact" })
     .eq("user_id", userId)
     .eq("status", "completed")
@@ -83,7 +87,7 @@ export async function POST(request: NextRequest) {
   }
 
   const { count, error: countError } = await supabase
-    .from("notes")
+    .from<"notes", NotesTable>("notes")
     .select("id", { count: "exact", head: true })
     .eq("user_id", userId)
     .eq("status", "completed");
@@ -144,7 +148,7 @@ export async function POST(request: NextRequest) {
     });
 
     const { data: insertedNote, error: insertError } = await supabase
-      .from("notes")
+      .from<"notes", NotesTable>("notes")
       .insert({
         user_id: userId,
         style_id: style.id,
@@ -157,9 +161,9 @@ export async function POST(request: NextRequest) {
         audio_path: filePath,
         audio_mime_type: file.type || "audio/webm",
         status: "completed",
-      })
+      } satisfies NoteInsert)
       .select()
-      .single();
+      .single<NoteRow>();
 
     if (insertError) {
       throw insertError;
@@ -184,7 +188,7 @@ export async function POST(request: NextRequest) {
       error,
     );
 
-    await supabase.from("notes").insert({
+    await supabase.from<"notes", NotesTable>("notes").insert({
       user_id: userId,
       style_id: style.id,
       style_name: style.name,
@@ -198,7 +202,7 @@ export async function POST(request: NextRequest) {
       status: "failed",
       last_error:
         error instanceof Error ? `${error.name}: ${error.message}` : "Unknown error during processing",
-    });
+    } satisfies NoteInsert);
 
     return NextResponse.json(
       { error: "Failed to create note. Please try again." },
