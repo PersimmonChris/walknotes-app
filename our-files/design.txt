@@ -1,0 +1,138 @@
+## 🎨 WalkNotes — Final Combined Design Document
+
+### 🏠 1️⃣ Landing Page (Public)
+
+* **Purpose:** Attract users and explain the app simply.
+* **Hero Section:**
+
+  * Centered text introducing *WalkNotes*:
+    “Turn your spoken thoughts into beautifully written notes.”
+  * To the right: a **pulsating navy-blue microphone icon** (main visual cue).
+  * Two main buttons:
+
+    * **Sign Up for Free** → Opens **Clerk modal**.
+    * **See How It Works** → Smooth scrolls to an explanatory section below.
+  * **Top-right:** “Log In” button (opens Clerk modal).
+* **“How It Works” Section:**
+  Visual and text description of the 3-step process:
+  1️⃣ Record → 2️⃣ Choose Style → 3️⃣ Get Your Note.
+
+---
+
+### 💻 2️⃣ Main Dashboard (After Login)
+
+* **Header:**
+
+  * **Top-left:** 👤 Clerk Profile icon (account / logout).
+  * **Top-right:** ⚙️ Settings icon (currently placeholder).
+  * **Below Header:** For free users, a **banner** saying “Upgrade to Premium” (non-functional).
+* **Main Title:** *WalkNotes*
+* **Subtitle:** “Capture any thought on the spot.”
+* **Notes Section:**
+
+  * Displays user’s notes as stacked **cards** (title + preview + date).
+  * Pagination control in the **top-right** (e.g., “Page 1 of 4 ◄ ►”).
+  * Clicking a note opens its **full view modal**.
+* **Floating Mic Button:**
+
+  * Large, circular navy-blue button (#0b1e3f) centered at bottom.
+  * White microphone icon, softly pulsating.
+  * Clicking opens **Recording Overlay**.
+
+---
+
+### 🎙️ 3️⃣ Recording Overlay
+
+* **Overlay Style:**
+  Rounded-corner block overlay above note list (navy background, white text/icons).
+* **Elements:**
+
+  * Centered **10-minute countdown timer**.
+  * **Animated waveform** to show input activity.
+  * **Stop** (centered) and **Pause** icons (white outline).
+* When recording stops → instantly triggers **Style Selection Modal**.
+
+---
+
+### ✍️ 4️⃣ Style Selection Modal
+
+* **Header:** “Choose how to rewrite your thought”
+* **Subhead:** “Select one of your WalkNotes styles.”
+* **Grid of Style Cards:** 2x2 or 3x2 layout — selected card highlighted navy-blue with white text.
+* No confirmation button — clicking a style immediately starts the next process.
+* (Optional slider for output length — keep hidden for now.)
+
+---
+
+### ⚙️ 5️⃣ Processing Overlay
+
+* Appears immediately after selecting style.
+* Same navy overlay as recording, transitions smoothly.
+* Shows progress steps with fade animation:
+  1️⃣ Uploading...
+  2️⃣ Transcribing...
+  3️⃣ Rewriting...
+* Small animated white dot shows activity.
+* If user exceeds free limit (3 notes), instead of continuing, show **paywall modal**:
+  “Go Premium and unlock unlimited notes.”
+  (Button non-functional placeholder.)
+
+---
+
+### 🧠 6️⃣ Final Note Modal
+
+* **Appearance:**
+  almost Full-screen rounder corner**navy background**, **white text text**, clean and readable.
+  Modal header and buttons use **white** accents with **white text/icons**.
+* **Content:**
+
+  * **Title** (AI-generated, editable inline).
+  * **Body text** (rewritten note, editable inline).
+* **Actions (Footer):**
+
+  * 📋 Copy (shows “Copied to clipboard.” toast)
+  * 🔗 Share
+  * 🗑 Delete
+* **Transcript Toggle:**
+
+  * Below the main modal content, a **small navy-blue button** labeled **“View Transcript”**.
+  * When clicked, it expands smoothly to reveal the full **transcript section** underneath the modal.
+  * Button text toggles to **“Hide Transcript”** when open.
+* All buttons maintain consistent navy-blue with white text/icons styling.
+
+---
+
+### 💡 7️⃣ Notes Limit & Paywall Logic
+
+* **Free Tier:** Up to **3 notes**.
+* When limit reached:
+
+  * Any attempt to record triggers a **hard paywall modal**.
+  * Message: “Go Premium and unlock unlimited notes.”
+  * “Go Premium” button is placeholder (non-functional).
+
+---
+
+### 🧩 8️⃣ AI Logic Summary (App Backbone)
+
+1️⃣ Record audio.
+2️⃣ Send to AI model (currently Gemini) with prompt “transcribe word by word.”
+3️⃣ Receive transcript.
+4️⃣ Pass transcript again to same AI model with selected style prompt.
+5️⃣ Output: note title + styled text + transcript.
+*(Implementation must remain flexible — model easily swappable.)*
+
+---
+
+### ✨ 9️⃣ Visual Identity & Design Language
+
+* **Background:** White
+* **Primary text:** Black
+* **Accent color:** Navy blue (#0b1e3f) — used for buttons, modals, and active states
+* **Secondary accent:** Warm light tones (beige or soft tan) when needed
+* **Typography:** Clean sans-serif (e.g., Inter, Nunito, or Open Sans)
+* **Style:** Minimalist, modern, with generous white space
+* **Animations:** Gentle fades and micro-interactions, nothing flashy
+* **Overall Feel:** Calm, focused
+
+---
