@@ -1,5 +1,5 @@
 import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import { Mic } from "lucide-react";
+import { Clock, FileText, Globe, Mic, ShieldCheck, Sparkles, Share2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -10,6 +10,23 @@ export default function Home() {
         <Link href="/" className="text-xl font-semibold text-[#0b1e3f]">
           WalkNotes
         </Link>
+        <nav className="hidden items-center gap-6 text-sm font-medium text-slate-600 md:flex">
+          <Link href="#how-it-works" className="transition hover:text-[#0b1e3f]">
+            How it works
+          </Link>
+          <Link href="#features" className="transition hover:text-[#0b1e3f]">
+            Features
+          </Link>
+          <Link href="#use-cases" className="transition hover:text-[#0b1e3f]">
+            Use cases
+          </Link>
+          <Link href="#pricing" className="transition hover:text-[#0b1e3f]">
+            Pricing
+          </Link>
+          <Link href="#faq" className="transition hover:text-[#0b1e3f]">
+            FAQ
+          </Link>
+        </nav>
         <nav className="flex items-center gap-3">
           <SignedOut>
             <SignInButton mode="modal" redirectUrl="/dashboard">
@@ -110,6 +127,260 @@ export default function Home() {
                 </span>
                 <h3 className="text-2xl font-semibold text-[#0b1e3f]">{step.title}</h3>
                 <p className="text-slate-600">{step.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section id="features" className="flex flex-col gap-14">
+          <div className="flex flex-col gap-3">
+            <h2 className="text-3xl font-semibold text-[#0b1e3f]">Designed for frictionless thinking</h2>
+            <p className="text-lg text-slate-600">
+              WalkNotes pairs effortless capture with instant AI polish so your smartest ideas never get lost.
+            </p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {[
+              {
+                title: "Live voice clean-up",
+                description: "AI removes filler words and rewrites transcripts with your chosen tone within seconds.",
+                icon: Sparkles,
+              },
+              {
+                title: "Offline-friendly capture",
+                description: "Record confidently during commutes or hikes—uploads resume when you reconnect.",
+                icon: Globe,
+              },
+              {
+                title: "Automatic structure",
+                description: "Turn rambling audio into organized summaries, action items, and shareable briefs.",
+                icon: FileText,
+              },
+              {
+                title: "Context aware styles",
+                description: "Save presets for investor updates, journals, coaching notes, and switch in one tap.",
+                icon: Share2,
+              },
+              {
+                title: "Time smart playback",
+                description: "Skim recordings with smart timestamps and re-listen only to the moments that matter.",
+                icon: Clock,
+              },
+              {
+                title: "Enterprise-grade security",
+                description: "Your recordings are encrypted end to end and you control retention and exports.",
+                icon: ShieldCheck,
+              },
+            ].map(({ title, description, icon: Icon }) => (
+              <div
+                key={title}
+                className="flex flex-col gap-4 rounded-3xl border border-[#0b1e3f]/10 bg-white p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0b1e3f]/10 text-[#0b1e3f]">
+                  <Icon className="h-6 w-6" />
+                </div>
+                <h3 className="text-xl font-semibold text-[#0b1e3f]">{title}</h3>
+                <p className="text-base text-slate-600">{description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section
+          id="use-cases"
+          className="flex flex-col gap-12 rounded-[40px] bg-[#0b1e3f] px-10 py-16 text-white shadow-lg md:px-16"
+        >
+          <div className="flex flex-col gap-4">
+            <span className="text-sm uppercase tracking-[0.3em] text-white/70">Use cases</span>
+            <h2 className="text-3xl font-semibold md:text-4xl">The note-taker you need when your hands are busy</h2>
+            <p className="text-lg text-white/70">
+              WalkNotes keeps pace with every fast-moving role and routine.
+            </p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-2">
+            {[
+              {
+                title: "Founders on the move",
+                description: "Capture product ideas, investor updates, or stand-up recaps between meetings.",
+              },
+              {
+                title: "Coaches & therapists",
+                description: "Summarize sessions instantly while insights are fresh, with clear action items.",
+              },
+              {
+                title: "Field reporters",
+                description: "Record interviews on location and turn them into clean copy before you get back to the desk.",
+              },
+              {
+                title: "Daily reflections",
+                description: "Build a mindful habit with effortless voice journals that sound like your best writing.",
+              },
+            ].map(({ title, description }) => (
+              <div key={title} className="rounded-3xl bg-white/5 p-8">
+                <h3 className="text-2xl font-semibold">{title}</h3>
+                <p className="mt-3 text-white/70">{description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section id="testimonials" className="flex flex-col gap-14">
+          <div className="flex flex-col gap-3">
+            <h2 className="text-3xl font-semibold text-[#0b1e3f]">Loved by fast thinkers</h2>
+            <p className="text-lg text-slate-600">
+              Teams and solo founders use WalkNotes to stay aligned without slowing down.
+            </p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {[
+              {
+                quote:
+                  "I walk around the block after each investor meeting and WalkNotes transforms my ramble into the follow-up email I send minutes later.",
+                name: "Lina • Startup Founder",
+              },
+              {
+                quote:
+                  "My coaching notes went from scattered voice memos to crisp summaries clients rave about.",
+                name: "Blake • Executive Coach",
+              },
+              {
+                quote:
+                  "I capture scenes on set, get structured bullet points, and publish faster than ever.",
+                name: "Harper • Documentary Producer",
+              },
+            ].map(({ quote, name }) => (
+              <div
+                key={name}
+                className="flex h-full flex-col gap-6 rounded-3xl border border-[#0b1e3f]/10 bg-white p-8 shadow-sm"
+              >
+                <p className="text-lg text-slate-700">&ldquo;{quote}&rdquo;</p>
+                <span className="text-sm font-semibold uppercase tracking-[0.2em] text-[#0b1e3f]">
+                  {name}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section id="pricing" className="flex flex-col gap-12">
+          <div className="flex flex-col gap-3">
+            <h2 className="text-3xl font-semibold text-[#0b1e3f]">Upgrade once, keep clarity forever</h2>
+            <p className="text-lg text-slate-600">
+              Simple, transparent pricing designed for builders who prefer ownership over subscriptions.
+            </p>
+          </div>
+          <div className="grid gap-8 md:grid-cols-[1.1fr_0.9fr]">
+            <div className="flex flex-col justify-between gap-8 rounded-3xl border border-[#0b1e3f]/15 bg-[#f7f6f2] p-10 shadow-lg">
+              <div className="flex flex-col gap-5">
+                <span className="self-start rounded-full bg-[#0b1e3f]/10 px-4 py-1 text-sm font-medium text-[#0b1e3f]">
+                  One-time purchase
+                </span>
+                <h3 className="text-4xl font-semibold text-[#0b1e3f]">$50</h3>
+                <p className="text-base text-slate-600">
+                  Pay once and unlock lifetime access to WalkNotes features and updates.
+                </p>
+                <ul className="flex flex-col gap-3 text-sm text-slate-700">
+                  {[
+                    "Unlimited high-quality voice recordings",
+                    "AI writing styles with tone presets and templates",
+                    "Export to email, Notion, Drive, and more",
+                    "Lifetime updates and priority support",
+                  ].map((benefit) => (
+                    <li key={benefit} className="flex items-start gap-2">
+                      <span className="mt-1 h-2 w-2 rounded-full bg-[#0b1e3f]" />
+                      <span>{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <SignedOut>
+                <SignUpButton mode="modal" redirectUrl="/dashboard">
+                  <Button size="lg" className="w-full">
+                    Get lifetime access
+                  </Button>
+                </SignUpButton>
+              </SignedOut>
+              <SignedIn>
+                <Button asChild size="lg" className="w-full">
+                  <Link href="/dashboard">Go to dashboard</Link>
+                </Button>
+              </SignedIn>
+            </div>
+            <div className="flex h-full flex-col justify-center gap-6 rounded-3xl border border-dashed border-[#0b1e3f]/30 bg-white p-8 text-slate-700">
+              <h4 className="text-xl font-semibold text-[#0b1e3f]">Need to try before you buy?</h4>
+              <p>
+                Record five sessions on the free plan and keep every transcript. Upgrade when you are ready for
+                unlimited sessions and premium styles.
+              </p>
+              <Button asChild variant="secondary" size="lg" className="self-start">
+                <Link href="#faq">See what&apos;s included</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="cta"
+          className="flex flex-col items-start gap-8 rounded-[40px] bg-gradient-to-r from-[#0b1e3f] via-[#132b5a] to-[#226bb5] px-10 py-16 text-white shadow-xl md:flex-row md:items-center md:justify-between md:px-16"
+        >
+          <div className="flex max-w-2xl flex-col gap-4">
+            <h2 className="text-3xl font-semibold md:text-4xl">Take WalkNotes on your next walk</h2>
+            <p className="text-lg text-white/80">
+              Capture voice-first ideas, choose your tone, and deliver polished notes before you get back to your desk.
+            </p>
+          </div>
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <SignedOut>
+              <SignUpButton mode="modal" redirectUrl="/dashboard">
+                <Button size="lg" className="min-w-[200px] bg-white text-[#0b1e3f] hover:bg-white/90">
+                  Start for free
+                </Button>
+              </SignUpButton>
+            </SignedOut>
+            <SignedIn>
+              <Button asChild size="lg" className="min-w-[200px] bg-white text-[#0b1e3f] hover:bg-white/90">
+                <Link href="/dashboard">Record now</Link>
+              </Button>
+            </SignedIn>
+            <Button asChild variant="secondary" size="lg">
+              <Link href="#pricing">View pricing</Link>
+            </Button>
+          </div>
+        </section>
+
+        <section id="faq" className="flex flex-col gap-10">
+          <div className="flex flex-col gap-3">
+            <h2 className="text-3xl font-semibold text-[#0b1e3f]">Questions, answered</h2>
+            <p className="text-lg text-slate-600">
+              Everything you need to know before bringing WalkNotes into your routine.
+            </p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-2">
+            {[
+              {
+                question: "Do I need to be online to record?",
+                answer:
+                  "No. WalkNotes caches recordings offline and syncs them once you reconnect, so you never lose a thought.",
+              },
+              {
+                question: "What styles can I choose from?",
+                answer:
+                  "Start with built-in presets like product update, meeting recap, investor memo, coaching session, and craft your own tone.",
+              },
+              {
+                question: "Can I export my notes?",
+                answer:
+                  "Yes. Send polished notes to email, Notion, Google Drive, or download as Markdown with one tap.",
+              },
+              {
+                question: "Is my data secure?",
+                answer:
+                  "Recordings are encrypted in transit and at rest. You control retention periods, and we never train models on your data.",
+              },
+            ].map(({ question, answer }) => (
+              <div key={question} className="rounded-3xl border border-[#0b1e3f]/15 bg-white p-8 shadow-sm">
+                <h3 className="text-xl font-semibold text-[#0b1e3f]">{question}</h3>
+                <p className="mt-3 text-base text-slate-600">{answer}</p>
               </div>
             ))}
           </div>
