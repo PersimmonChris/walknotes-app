@@ -109,6 +109,8 @@ export function DashboardView() {
   const [limitReachedMessage, setLimitReachedMessage] = React.useState<string | null>(null);
   const [activeStyles, setActiveStyles] = React.useState<WritingStyle[]>(WRITING_STYLES);
   const [isDeleting, setIsDeleting] = React.useState(false);
+  const [editedContent, setEditedContent] = React.useState("");
+  const [isSaving, setIsSaving] = React.useState(false);
 
   const mediaRecorderRef = React.useRef<MediaRecorder | null>(null);
   const mediaStreamRef = React.useRef<MediaStream | null>(null);
@@ -172,6 +174,16 @@ export function DashboardView() {
   React.useEffect(() => {
     fetchNotes(1);
   }, [fetchNotes]);
+
+  React.useEffect(() => {
+    if (selectedNote) {
+      setEditedContent(selectedNote.content ?? "");
+    } else {
+      setEditedContent("");
+      setShowTranscript(false);
+      setIsSaving(false);
+    }
+  }, [selectedNote]);
 
   const handleStartRecording = React.useCallback(async () => {
     if (total >= MAX_FREE_NOTES) {
@@ -408,6 +420,57 @@ export function DashboardView() {
     [createToast, handleCopy],
   );
 
+  const handleSaveNote = React.useCallback(async () => {
+    if (!selectedNote) {
+      return;
+    }
+
+    if (editedContent === selectedNote.content) {
+      createToast("No changes to save.");
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      const response = await fetch(`/api/notes/${selectedNote.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ content: editedContent }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update note");
+      }
+
+      const payload = await response.json();
+      const updatedNote: Note | undefined = payload?.note;
+
+      if (updatedNote) {
+        setSelectedNote(updatedNote);
+        setNotes((prevNotes) =>
+          prevNotes.map((note) => (note.id === updatedNote.id ? updatedNote : note)),
+        );
+      } else {
+        setSelectedNote((prev) => (prev ? { ...prev, content: editedContent } : prev));
+        setNotes((prevNotes) =>
+          prevNotes.map((note) =>
+            note.id === selectedNote.id ? { ...note, content: editedContent } : note,
+          ),
+        );
+      }
+
+      createToast("Note updated.");
+    } catch (error) {
+      console.error(error);
+      createToast("Unable to save note. Please try again.", "error");
+    } finally {
+      setIsSaving(false);
+    }
+  }, [createToast, editedContent, selectedNote]);
+
   const usedNotes = Math.min(total, MAX_FREE_NOTES);
 
   return (
@@ -496,33 +559,36 @@ export function DashboardView() {
                   </div>
                 </div>
               ) : (
-                notes.map((note) => (
-                  <Card
-                    key={note.id}
-                    className="cursor-pointer bg-white transition hover:-translate-y-1"
-                    onClick={() => {
-                      setSelectedNote(note);
-                      setShowTranscript(false);
-                    }}
-                  >
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
+                notes.map((note) => {
+                  const trimmedContent = (note.content ?? "").trim();
+                  const previewContent =
+                    trimmedContent.length > 220
+                      ? `${trimmedContent.slice(0, 220)}…`
+                      : trimmedContent || note.transcript || "";
+
+                  return (
+                    <Card
+                      key={note.id}
+                      className="cursor-pointer bg-white transition hover:-translate-y-1"
+                      onClick={() => {
+                        setSelectedNote(note);
+                        setShowTranscript(false);
+                      }}
+                    >
+                      <CardHeader>
                         <div className="text-xs font-medium uppercase tracking-wide text-[#0b1e3f]">
                           {note.style_name}
                         </div>
-                        <div className="text-xs text-slate-400">
-                          {new Date(note.created_at).toLocaleDateString()}
-                        </div>
-                      </div>
-                      <h2 className="text-2xl font-semibold text-[#0b1e3f]">{note.title}</h2>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="line-clamp-3 text-sm text-slate-600">
-                        {note.transcript_summary ?? note.content}
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))
+                        <h2 className="text-2xl font-semibold text-[#0b1e3f]">{note.title}</h2>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="line-clamp-3 text-sm text-slate-600">
+                          {previewContent}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  );
+                })
               )}
             </div>
           </section>
@@ -676,22 +742,23 @@ export function DashboardView() {
         </Dialog>
 
         <Dialog open={Boolean(selectedNote)} onOpenChange={(open) => !open && setSelectedNote(null)}>
-          <DialogContent className="max-w-4xl bg-[#0b1e3f] text-white">
+          <DialogContent className="max-w-5xl bg-[#0b1e3f] p-10 text-white">
             {selectedNote && (
-              <div className="flex flex-col gap-6">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <div className="text-sm uppercase tracking-wider text-white/70">
-                      {selectedNote.style_name}
-                    </div>
-                    <DialogTitle className="mt-2 text-3xl font-semibold">
-                      {selectedNote.title}
-                    </DialogTitle>
+              <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                  <div className="max-w-2xl">
+                    <div className="text-sm uppercase tracking-wider text-white/70">{selectedNote.style_name}</div>
+                    <DialogTitle className="mt-2 text-3xl font-semibold">{selectedNote.title}</DialogTitle>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3 self-end md:self-start">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={() => handleCopy(selectedNote)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-white hover:bg-white/15 hover:text-white"
+                          onClick={() => handleCopy(selectedNote)}
+                        >
                           <Copy className="h-5 w-5" />
                         </Button>
                       </TooltipTrigger>
@@ -699,7 +766,12 @@ export function DashboardView() {
                     </Tooltip>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={() => handleShare(selectedNote)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-white hover:bg-white/15 hover:text-white"
+                          onClick={() => handleShare(selectedNote)}
+                        >
                           <Share2 className="h-5 w-5" />
                         </Button>
                       </TooltipTrigger>
@@ -726,22 +798,35 @@ export function DashboardView() {
                   </div>
                 </div>
 
-                <div className="space-y-4 rounded-3xl bg-white/10 p-6 text-left text-base leading-relaxed">
-                  {selectedNote.content.split("\n").map((paragraph, index) => (
-                    <p key={`${selectedNote.id}-p-${index}`} className="text-white/90">
-                      {paragraph}
-                    </p>
-                  ))}
+                <div className="rounded-3xl bg-white/10 p-6 text-left text-base leading-relaxed">
+                  <textarea
+                    aria-label="Edit note content"
+                    value={editedContent}
+                    onChange={(event) => setEditedContent(event.target.value)}
+                    className="min-h-[360px] w-full resize-y rounded-2xl border-none bg-transparent p-4 text-white/90 placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-white/25"
+                  />
                 </div>
 
-                <Button
-                  variant="ghost"
-                  className="self-start rounded-full bg-white/10 text-sm text-white hover:bg-white/20"
-                  onClick={() => setShowTranscript((prev) => !prev)}
-                >
-                  <FileText className="mr-2 h-4 w-4" />
-                  {showTranscript ? "Hide Transcript" : "View Transcript"}
-                </Button>
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button
+                    variant="ghost"
+                    className="rounded-full bg-white/10 text-sm text-white hover:bg-white/20"
+                    onClick={() => setShowTranscript((prev) => !prev)}
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    {showTranscript ? "Hide Transcript" : "View Transcript"}
+                  </Button>
+                  <Button
+                    className="rounded-full bg-white px-6 text-sm font-semibold text-[#0b1e3f] hover:bg-white/90"
+                    disabled={isSaving || editedContent === selectedNote.content}
+                    onClick={handleSaveNote}
+                  >
+                    {isSaving ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : null}
+                    Save
+                  </Button>
+                </div>
 
                 {showTranscript && (
                   <div className="rounded-3xl bg-white/5 p-6 text-sm text-white/80">
