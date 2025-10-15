@@ -12,7 +12,7 @@ import {
   Square,
   Trash2,
 } from "lucide-react";
-import { SignOutButton, UserButton } from "@clerk/nextjs";
+import { SignOutButton, UserButton, useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -93,6 +93,7 @@ function useToast(duration = 3200) {
 }
 
 export function DashboardView() {
+  const { user } = useUser();
   const [notes, setNotes] = React.useState<Note[]>([]);
   const [page, setPage] = React.useState(1);
   const [pageSize, setPageSize] = React.useState(6);
@@ -175,6 +176,21 @@ export function DashboardView() {
   React.useEffect(() => {
     fetchNotes(1);
   }, [fetchNotes]);
+
+  // Ensure the user exists in Supabase after login
+  React.useEffect(() => {
+    const init = async () => {
+      try {
+        await fetch("/api/init-user", { method: "POST", credentials: "include" });
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    // only call when user is ready
+    if (user?.id) {
+      void init();
+    }
+  }, [user?.id]);
 
   React.useEffect(() => {
     if (selectedNote) {
@@ -738,8 +754,24 @@ export function DashboardView() {
               </DialogDescription>
             </DialogHeader>
             <div className="mt-8 flex flex-col gap-3">
-              <Button disabled className="cursor-not-allowed">
-                Go Premium (coming soon)
+              <Button
+                onClick={() => {
+                  const base = "https://sandbox-api.polar.sh/v1/checkout-links/polar_cl_VEakQa0nS4V9gaprr4B6wr3IHoY8NodYWubmf1sSykM/redirect";
+                  try {
+                    const u = new URL(base);
+                    if (user?.id) {
+                      u.searchParams.set("reference_id", user.id);
+                    }
+                    window.location.href = u.toString();
+                  } catch {
+                    // Fallback: plain redirect if URL parsing fails
+                    const sep = base.includes("?") ? "&" : "?";
+                    const href = user?.id ? `${base}${sep}reference_id=${encodeURIComponent(user.id)}` : base;
+                    window.location.href = href;
+                  }
+                }}
+              >
+                Go Premium
               </Button>
               <DialogClose asChild>
                 <Button variant="ghost">Close</Button>

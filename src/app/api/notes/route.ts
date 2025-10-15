@@ -5,7 +5,7 @@ import { auth } from "@clerk/nextjs/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/server-client";
 import { getServerEnv } from "@/lib/env";
 import { getWritingStyleById, WRITING_STYLES } from "@/lib/styles";
-import { logError, logInfo } from "@/lib/logger";
+import { logError, logInfo, logWarn } from "@/lib/logger";
 import { transcribeAudio, rewriteTranscript } from "@/lib/ai";
 import type { Database } from "@/types/database";
 
@@ -86,27 +86,58 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "No audio file provided." }, { status: 400 });
   }
 
-  const { count, error: countError } = await supabase
-    .from<"notes", NotesTable>("notes")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", userId)
-    .eq("status", "completed");
+  // Allow unlimited for premium users
+  type UsersTable = Database["public"]["Tables"]["users"];
+  const { data: userRow, error: userError } = await supabase
+    .from<"users", UsersTable>("users")
+    .select("is_premium")
+    .eq("clerk_id", userId)
+    .maybeSingle();
 
-  if (countError) {
-    logError(
-      "notes.create.count_failed",
-      "Failed to fetch existing notes count",
-      { userId },
-      countError,
-    );
-    return NextResponse.json({ error: "Unable to verify note limit." }, { status: 500 });
+  let isPremium = false;
+  if (userError) {
+    const code = (userError as any)?.code as string | undefined;
+    const message = (userError as any)?.message as string | undefined;
+    const missingUsers = code === "42P01" || (message && message.toLowerCase().includes("relation") && message.includes("users") && message.toLowerCase().includes("does not exist"));
+    if (missingUsers) {
+      // Fallback gracefully if users table hasn't been created yet
+      logWarn("notes.create.users_table_missing", "users table not found; treating as non-premium", { userId });
+      isPremium = false;
+    } else {
+      logError(
+        "notes.create.user_fetch_failed",
+        "Failed to fetch user for premium check",
+        { userId, code, message },
+        userError,
+      );
+      return NextResponse.json({ error: "Unable to verify user status." }, { status: 500 });
+    }
+  } else {
+    isPremium = Boolean(userRow?.is_premium);
   }
+  if (!isPremium) {
+    const { count, error: countError } = await supabase
+      .from<"notes", NotesTable>("notes")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("status", "completed");
 
-  if ((count ?? 0) >= MAX_FREE_NOTES) {
-    return NextResponse.json(
-      { error: "LIMIT_REACHED", message: "Go Premium and unlock unlimited notes." },
-      { status: 403 },
-    );
+    if (countError) {
+      logError(
+        "notes.create.count_failed",
+        "Failed to fetch existing notes count",
+        { userId },
+        countError,
+      );
+      return NextResponse.json({ error: "Unable to verify note limit." }, { status: 500 });
+    }
+
+    if ((count ?? 0) >= MAX_FREE_NOTES) {
+      return NextResponse.json(
+        { error: "LIMIT_REACHED", message: "Go Premium and unlock unlimited notes." },
+        { status: 403 },
+      );
+    }
   }
 
   const arrayBuffer = await file.arrayBuffer();

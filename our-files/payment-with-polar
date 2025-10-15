@@ -1,0 +1,468 @@
+# Sandbox Environment
+
+A separate environment, isolated from your production data
+
+To test Polar or work on your integration without worrying about actual money processing or breaking your live organization, you can use our [sandbox environment](https://sandbox.polar.sh/start).
+
+It's a dedicated server, completely isolated from the production instance where you can do all the experiments you want.
+
+<Note>
+  **Why a dedicated environment instead of a test mode?**
+
+  Since we're dealing with money and need to keep track of all movements to assure our Merchant of Record service, we found it safer to isolate live data from test data so it never interferes. Besides, it allows you to create an unlimited number of account and organization to test lot of different scenarios. Consider it as your own development server!
+</Note>
+
+## Get started
+
+You can access the sandbox environment directly on [sandbox.polar.sh](https://sandbox.polar.sh/start) or by clicking on `Go to sandbox` from the organization switcher.
+
+You'll then need to create a dedicated user account and organization, the same way described in our [Quick Start guide](/introduction).
+
+### Testing payments
+
+The sandbox environment allows you to experience the complete customer funnel, including checkout. You can perform test payments using Stripe's [test card numbers](https://docs.stripe.com/testing#cards).
+
+The easiest one to test a successful payment is to use the following card number with a future expiration date and random CVC:
+
+```
+4242 4242 4242 4242
+```
+
+## API and SDK
+
+To make requests to our [API](/api-reference), all you need to do is to switch the base URL from `https://api.polar.sh` to `https://sandbox-api.polar.sh`. You'll also need to create an access token in the **sandbox environment**, the access token created in the production environment can't be used in the sandbox.
+
+Our official SDK supports the sandbox environment through a dedicated parameter.
+
+<CodeGroup>
+  ```ts TypeScript theme={null}
+  const polar = new Polar({
+    server: 'sandbox',
+    accessToken: process.env['POLAR_ACCESS_TOKEN'] ?? '',
+  })
+  ```
+
+  ```py Python theme={null}
+  s = Polar(
+      server="sandbox",
+      access_token="<YOUR_BEARER_TOKEN_HERE>",
+  )
+  ```
+
+  ```go Go theme={null}
+    s := polargo.New(
+    	polargo.WithServer("sandbox"),
+    	polargo.WithSecurity(os.Getenv("POLAR_ACCESS_TOKEN")),
+    )
+  ```
+
+  ```php PHP theme={null}
+  $sdk = Polar\Polar::builder()
+      ->setServer('sandbox')
+      ->setSecurity(
+          '<YOUR_BEARER_TOKEN_HERE>'
+      )
+      ->build();
+  ```
+</CodeGroup>
+
+## Limitations
+
+The limitations listed below only apply to sandbox and doesn't reflect the behavior in production.
+
+* Subscriptions created in sandbox are automatically canceled **90 days after their creation**.
+
+
+
+
+# Sandbox Environment
+
+A separate environment, isolated from your production data
+
+To test Polar or work on your integration without worrying about actual money processing or breaking your live organization, you can use our [sandbox environment](https://sandbox.polar.sh/start).
+
+It's a dedicated server, completely isolated from the production instance where you can do all the experiments you want.
+
+<Note>
+  **Why a dedicated environment instead of a test mode?**
+
+  Since we're dealing with money and need to keep track of all movements to assure our Merchant of Record service, we found it safer to isolate live data from test data so it never interferes. Besides, it allows you to create an unlimited number of account and organization to test lot of different scenarios. Consider it as your own development server!
+</Note>
+
+## Get started
+
+You can access the sandbox environment directly on [sandbox.polar.sh](https://sandbox.polar.sh/start) or by clicking on `Go to sandbox` from the organization switcher.
+
+You'll then need to create a dedicated user account and organization, the same way described in our [Quick Start guide](/introduction).
+
+### Testing payments
+
+The sandbox environment allows you to experience the complete customer funnel, including checkout. You can perform test payments using Stripe's [test card numbers](https://docs.stripe.com/testing#cards).
+
+The easiest one to test a successful payment is to use the following card number with a future expiration date and random CVC:
+
+```
+4242 4242 4242 4242
+```
+
+## API and SDK
+
+To make requests to our [API](/api-reference), all you need to do is to switch the base URL from `https://api.polar.sh` to `https://sandbox-api.polar.sh`. You'll also need to create an access token in the **sandbox environment**, the access token created in the production environment can't be used in the sandbox.
+
+Our official SDK supports the sandbox environment through a dedicated parameter.
+
+<CodeGroup>
+  ```ts TypeScript theme={null}
+  const polar = new Polar({
+    server: 'sandbox',
+    accessToken: process.env['POLAR_ACCESS_TOKEN'] ?? '',
+  })
+  ```
+
+  ```py Python theme={null}
+  s = Polar(
+      server="sandbox",
+      access_token="<YOUR_BEARER_TOKEN_HERE>",
+  )
+  ```
+
+  ```go Go theme={null}
+    s := polargo.New(
+    	polargo.WithServer("sandbox"),
+    	polargo.WithSecurity(os.Getenv("POLAR_ACCESS_TOKEN")),
+    )
+  ```
+
+  ```php PHP theme={null}
+  $sdk = Polar\Polar::builder()
+      ->setServer('sandbox')
+      ->setSecurity(
+          '<YOUR_BEARER_TOKEN_HERE>'
+      )
+      ->build();
+  ```
+</CodeGroup>
+
+## Limitations
+
+The limitations listed below only apply to sandbox and doesn't reflect the behavior in production.
+
+* Subscriptions created in sandbox are automatically canceled **90 days after their creation**.
+
+
+
+
+
+# Handle & monitor webhook deliveries
+
+> How to parse, validate and handle webhooks and monitor their deliveries on Polar
+
+<img className="block dark:hidden" src="https://mintcdn.com/polar/0Af3hN6-oIM4IHT3/assets/integrate/webhooks/delivery.light.png?fit=max&auto=format&n=0Af3hN6-oIM4IHT3&q=85&s=1c5f560bcca11607c67cc7f8b467dca4" data-og-width="2740" width="2740" data-og-height="1522" height="1522" data-path="assets/integrate/webhooks/delivery.light.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/polar/0Af3hN6-oIM4IHT3/assets/integrate/webhooks/delivery.light.png?w=280&fit=max&auto=format&n=0Af3hN6-oIM4IHT3&q=85&s=61c5f66e8cb7acab698915171b5bde4e 280w, https://mintcdn.com/polar/0Af3hN6-oIM4IHT3/assets/integrate/webhooks/delivery.light.png?w=560&fit=max&auto=format&n=0Af3hN6-oIM4IHT3&q=85&s=f452e9e0edebfa7b912f85238d9d7f3c 560w, https://mintcdn.com/polar/0Af3hN6-oIM4IHT3/assets/integrate/webhooks/delivery.light.png?w=840&fit=max&auto=format&n=0Af3hN6-oIM4IHT3&q=85&s=49d406e3c294cb33ac178f7c61cd81aa 840w, https://mintcdn.com/polar/0Af3hN6-oIM4IHT3/assets/integrate/webhooks/delivery.light.png?w=1100&fit=max&auto=format&n=0Af3hN6-oIM4IHT3&q=85&s=f2a6770fba4cc61303cc7d84de7db7bb 1100w, https://mintcdn.com/polar/0Af3hN6-oIM4IHT3/assets/integrate/webhooks/delivery.light.png?w=1650&fit=max&auto=format&n=0Af3hN6-oIM4IHT3&q=85&s=609d960dff8b2cf958e52118b7747365 1650w, https://mintcdn.com/polar/0Af3hN6-oIM4IHT3/assets/integrate/webhooks/delivery.light.png?w=2500&fit=max&auto=format&n=0Af3hN6-oIM4IHT3&q=85&s=683818fb66539342505f27574af611a5 2500w" />
+
+<img className="hidden dark:block" src="https://mintcdn.com/polar/0Af3hN6-oIM4IHT3/assets/integrate/webhooks/delivery.dark.png?fit=max&auto=format&n=0Af3hN6-oIM4IHT3&q=85&s=4ce4ac52095eb88c9073c4a18099a0bf" data-og-width="2672" width="2672" data-og-height="1526" height="1526" data-path="assets/integrate/webhooks/delivery.dark.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/polar/0Af3hN6-oIM4IHT3/assets/integrate/webhooks/delivery.dark.png?w=280&fit=max&auto=format&n=0Af3hN6-oIM4IHT3&q=85&s=623e1747b6245fd84986462620718bcc 280w, https://mintcdn.com/polar/0Af3hN6-oIM4IHT3/assets/integrate/webhooks/delivery.dark.png?w=560&fit=max&auto=format&n=0Af3hN6-oIM4IHT3&q=85&s=da4785f9e803826575e0a148286e3c43 560w, https://mintcdn.com/polar/0Af3hN6-oIM4IHT3/assets/integrate/webhooks/delivery.dark.png?w=840&fit=max&auto=format&n=0Af3hN6-oIM4IHT3&q=85&s=0d3e453abcd767cddea396717bc774ec 840w, https://mintcdn.com/polar/0Af3hN6-oIM4IHT3/assets/integrate/webhooks/delivery.dark.png?w=1100&fit=max&auto=format&n=0Af3hN6-oIM4IHT3&q=85&s=314fcf0248f280018d16f61ff50cb86c 1100w, https://mintcdn.com/polar/0Af3hN6-oIM4IHT3/assets/integrate/webhooks/delivery.dark.png?w=1650&fit=max&auto=format&n=0Af3hN6-oIM4IHT3&q=85&s=aa74acbb1c73448868054df87bd7e0ad 1650w, https://mintcdn.com/polar/0Af3hN6-oIM4IHT3/assets/integrate/webhooks/delivery.dark.png?w=2500&fit=max&auto=format&n=0Af3hN6-oIM4IHT3&q=85&s=9117a6ffafa146e98eed1f1f1582a776 2500w" />
+
+Once a webhook endpoint is setup you will have access to the delivery overview
+page. Here you can:
+
+* See historic deliveries
+* Review payload sent
+* Trigger redelivery in case of failure
+
+Now, let's integrate our endpoint route to validate, parse & handle incoming webhooks.
+
+## Validate & parse webhooks
+
+You now need to setup a route handler for the endpoint registered on Polar to
+receive, validate and parse webhooks before handling them according to your
+needs.
+
+### Using our SDKs
+
+Our TypeScript & Python SDKs come with a built-in helper function to easily
+validate and parse the webhook event - see full examples below.
+
+<CodeGroup>
+  ```typescript JS (Express) theme={null}
+  import express, { Request, Response } from 'express'
+  import { validateEvent, WebhookVerificationError } from '@polar-sh/sdk/webhooks'
+
+  const app = express()
+
+  app.post(
+  '/webhook',
+  express.raw({ type: 'application/json' }),
+  (req: Request, res: Response) => {
+  try {
+  const event = validateEvent(
+  req.body,
+  req.headers,
+  process.env['POLAR_WEBHOOK_SECRET'] ?? '',
+  )
+
+        // Process the event
+
+        res.status(202).send('')
+      } catch (error) {
+        if (error instanceof WebhookVerificationError) {
+          res.status(403).send('')
+        }
+        throw error
+      }
+
+  },
+  )
+
+  ```
+
+  ```python Python (Flask) theme={null}
+  import os
+  from flask import Flask, request
+  from polar_sdk.webhooks import validate_event, WebhookVerificationError
+
+  app = Flask(__name__)
+
+  @app.route('/webhook', methods=['POST'])
+  def webhook():
+      try:
+          event = validate_event(
+              body=request.data,
+              headers=request.headers,
+              secret=os.getenv('POLAR_WEBHOOK_SECRET', ''),
+          )
+
+          # Process the event
+
+          return "", 202
+      except WebhookVerificationError as e:
+          return "", 403
+  ```
+</CodeGroup>
+
+Both examples above expect an environment variable named `POLAR_WEBHOOK_SECRET`
+to be set to the secret you configured during the endpoint setup.
+
+### Custom validation
+
+We follow the [Standard Webhooks](https://www.standardwebhooks.com/)
+standard which offers [many libraries across languages](https://github.com/standard-webhooks/standard-webhooks/tree/main/libraries) to
+easily validate signatures. Or you can follow their
+[specification](https://github.com/standard-webhooks/standard-webhooks/blob/main/spec/standard-webhooks.md)
+in case you want to roll your own.
+
+<Info>
+  **Note: Secret needs to be base64 encoded**
+
+  One common gotcha with the specification is that the webhook secret is expected to be
+  base64 encoded. You don't have to do this with our SDK as it takes care of the
+  implementation details with better developer ergonomics.
+</Info>
+
+## IP Allowlist
+
+If you are using a firewall or a reverse proxy that requires IP allowlisting, here are the IPs range you need to allow:
+
+<Danger>
+  **New IP ranges**
+
+  Starting **October 27th, 2025**, new IP ranges will be added:
+
+  ```
+  74.220.50.0/24
+  74.220.58.0/24
+  ```
+</Danger>
+
+<CodeGroup>
+  ```txt Production theme={null}
+  3.134.238.10
+  3.129.111.220
+  52.15.118.168
+
+  74.220.50.0/24
+  74.220.58.0/24
+  ```
+
+  ```txt Sandbox theme={null}
+  3.134.238.10
+  3.129.111.220
+  52.15.118.168
+
+  74.220.50.0/24
+  74.220.58.0/24
+  ```
+</CodeGroup>
+
+## Failure Handling
+
+### Delivery Retries
+
+If we hit an error while trying to reach your endpoint, whether it is a temporary network error or a bug, we'll retry to send the event up to **10 times** with an exponential backoff.
+
+### Delivery Timeouts
+
+We timeout our requests to your endpoint after **20 seconds**. Triggering a
+retry attempt after a delay as explained above. However, we strongly recommend you optimize your endpoint route to be fast. A
+best practice is for your webhook handler to queue a background worker task to handle the
+payload asynchronously.
+
+## Troubleshooting
+
+### Not receiving webhooks
+
+Seeing deliveries on Polar, but not receiving them on your end? Below are some
+common techniques to resolve the issue depending on the reported error status.
+
+**General**
+
+*Start ngrok or similar*
+
+Make sure you have started `ngrok` or whatever tunneling service you're using
+during local development.
+
+*Add excessive logging*
+
+E.g
+`console.log('webhook.handler_called')`,
+`console.log('webhook.validate_signature')`,
+`console.log('webhook.signature_validated')` etc.
+
+So you can easily confirm if the handler is called and how far it gets before
+any issues arise.
+
+`HTTP 404`
+
+* Try `curl -vvv -X POST <copy-paste-endpoint-url>` in your terminal to confirm the
+  route exists and see any issues along the way
+* Try adding trailing `/` to the URL on Polar. Often `/foo` is resolved to
+  `/foo/` by frameworks.
+
+`HTTP 403`
+
+* Using middleware for authorization? Make sure to exclude the webhook route
+  from it since it needs to be publicly accessible
+* Using Cloudflare?
+  * Check the firewall logs to verify if they are blocking our requests and setup a custom WAF rule to accept incoming requests from Polar.
+  * Webhook delivery failures with 403 errors can occur when Cloudflare's Bot Fight Mode is enabled. Bot Fight Mode automatically blocks requests it identifies as bots, including legitimate webhook requests from Polar. Adding Polar's IP addresses to your IP Allow List or creating custom WAF rules will not resolve this issue. To fix webhook delivery problems, disable Bot Fight Mode in your Cloudflare dashboard under Security > Bots. Alternatively, you can check your Cloudflare firewall logs to confirm if requests are being blocked and create appropriate firewall rules if needed.
+
+### Invalid signature exceptions
+
+Rolling your own webhook validation logic? Make sure to base64 encode the secret
+you configured on Polar in your code before generating the signature to validate
+against.
+
+
+
+# Checkout Links
+
+> Sell your digital products with ease by sharing a checkout link to select products
+
+Checkout links can be shared or linked on your website which automatically
+creates a checkout session for customers.
+
+<Tip>
+  Looking for a way to generate Checkout session programmatically? Checkout
+  Links might not be the right tool for you. Instead, you should use the
+  [Checkout API](/features/checkout/session).
+</Tip>
+
+## Create a Checkout Link
+
+Checkout Links can be managed from the **Checkout Links** tabs of the Products section. Click on **New Link** to create a new one.
+
+<Frame>
+  <img className="block dark:hidden" src="https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/create.light.png?fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=72a31513d6f7226cc17e94b4c58ca2cd" data-og-width="1620" width="1620" data-og-height="2304" height="2304" data-path="assets/features/checkout/links/create.light.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/create.light.png?w=280&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=2a601b4e14c78c6a3a86f4695cb0e874 280w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/create.light.png?w=560&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=738a28ee21637ac4897fb77cae731173 560w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/create.light.png?w=840&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=d5be5ff69604d81851a21811342f40f0 840w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/create.light.png?w=1100&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=1dbf2230a8d62f3eca56f143c89bd3d5 1100w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/create.light.png?w=1650&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=f8558ed91355eb9c7ff8d06c87948f23 1650w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/create.light.png?w=2500&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=58d314816ed83e11395270b7cae32a05 2500w" />
+
+  <img className="hidden dark:block" src="https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/create.dark.png?fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=17c40b706377d71c9e5d73b4ee1e1ebe" data-og-width="1620" width="1620" data-og-height="2304" height="2304" data-path="assets/features/checkout/links/create.dark.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/create.dark.png?w=280&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=a88117255fb447f2167a901dc44bd786 280w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/create.dark.png?w=560&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=0a69d0efc11e9b8622ff3ccb23f4a6ff 560w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/create.dark.png?w=840&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=09c1d11b23cac91601239d820dadc57f 840w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/create.dark.png?w=1100&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=2c64df021ceb0683ac37ceb4ae0192e6 1100w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/create.dark.png?w=1650&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=74d157d480eb828b0ec4dd180b7e3376 1650w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/create.dark.png?w=2500&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=109598098aa62f2e37805ac7bf1d1261 2500w" />
+</Frame>
+
+#### Label
+
+This is an internal name for the Checkout Link. It's only visible to you.
+
+#### Products
+
+You can select one or **several** products. With several products, customers will be able to switch between them on the checkout page.
+
+<img className="block dark:hidden" src="https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_multiple_products.light.png?fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=0cce5b2ade56d8be88bcecd1b59a9426" data-og-width="3840" width="3840" data-og-height="2500" height="2500" data-path="assets/features/checkout/links/checkout_multiple_products.light.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_multiple_products.light.png?w=280&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=81d388ddcfb786bb86cc09d9cf9ba637 280w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_multiple_products.light.png?w=560&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=dbcfdd0c2a27b2d3d29e3cf1448a1904 560w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_multiple_products.light.png?w=840&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=e1374223415627f8c45d1ef4d56a9535 840w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_multiple_products.light.png?w=1100&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=efd59ce3ad4738fa316b18ead4a6c93c 1100w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_multiple_products.light.png?w=1650&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=799013832ed88bfa4a8709e6e31ec13c 1650w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_multiple_products.light.png?w=2500&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=93fdb67c6e863d2a3d42b4e6106beecd 2500w" />
+
+<img className="hidden dark:block" src="https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_multiple_products.dark.png?fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=284cedc2ba0bee4bc5a35c8571f9884a" data-og-width="3840" width="3840" data-og-height="2500" height="2500" data-path="assets/features/checkout/links/checkout_multiple_products.dark.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_multiple_products.dark.png?w=280&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=28ad596f39f0071cdf6ebff24dd924af 280w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_multiple_products.dark.png?w=560&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=a458623c56f532dd1107ceb10df8c00c 560w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_multiple_products.dark.png?w=840&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=0f3c313cde746fb224893f493f46ec36 840w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_multiple_products.dark.png?w=1100&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=c7d5cddba9a739f8a6b426aedc94e362 1100w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_multiple_products.dark.png?w=1650&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=232c97d2f61fec1a91697edfcd68a01c 1650w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_multiple_products.dark.png?w=2500&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=bfd17425e10cd466072e1238183b5f7e 2500w" />
+
+#### Discount
+
+You can disable discount codes, if you wish to prevent customers from using them.
+
+You can also preset a discount: it'll be automatically applied when the customer lands on the checkout page.
+
+#### Metadata
+
+This is an optional key-value object allowing you to store additional information which may be useful for you when handling the order. This metadata will be copied to the generated Checkout object and, if the checkout succeeds, to the resulting Order and/or Subscription.
+
+## Using Checkout Links
+
+You can share the Checkout Link URL on your webpage, social media, or directly to customers.
+
+<img className="block dark:hidden" src="https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_link.light.png?fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=0cea22165e21ee7df3bb8b40fd6c802d" data-og-width="1320" width="1320" data-og-height="1030" height="1030" data-path="assets/features/checkout/links/checkout_link.light.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_link.light.png?w=280&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=8eaa90d8814cd2a0bd7da1463bdc76c8 280w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_link.light.png?w=560&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=a706e71e5ff949498115ec1ef8aa341a 560w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_link.light.png?w=840&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=bff20c898abc7d24b5f13fc6be80773b 840w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_link.light.png?w=1100&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=19ac59f8dc034a68eefbf60f27c9ac90 1100w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_link.light.png?w=1650&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=93e300396799bd58d70012b6bb57e532 1650w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_link.light.png?w=2500&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=232769397ef0a371aec554b8b951a38b 2500w" />
+
+<img className="hidden dark:block" src="https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_link.dark.png?fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=52995548b0c4a6b960981f91c663174e" data-og-width="1320" width="1320" data-og-height="1030" height="1030" data-path="assets/features/checkout/links/checkout_link.dark.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_link.dark.png?w=280&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=51bafd1fda3dff32a0d380a93294af6a 280w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_link.dark.png?w=560&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=ad493c46a4f264c513bbd7155aa7f8ea 560w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_link.dark.png?w=840&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=5013674a50e89c7712952b968c4800d5 840w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_link.dark.png?w=1100&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=eb532d2bd4a06e919c03d560158a3abd 1100w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_link.dark.png?w=1650&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=599bef0ee892334a94f1a15faa9779c4 1650w, https://mintcdn.com/polar/Ut0vPUvE1pIdMcH2/assets/features/checkout/links/checkout_link.dark.png?w=2500&fit=max&auto=format&n=Ut0vPUvE1pIdMcH2&q=85&s=86d193d3f120d300194d4659c3647228 2500w" />
+
+<Warning>
+  Checkout Links will go against our API, and redirect to short-lived Checkout session. This means that the Checkout page the user will end up on, are temporary and expires after a while if no successful purchase is made.
+
+  This means that you need to make sure to always use this Checkout Link URL (as shown above). If you mistakenly copy the URL from a Checkout Session, the link will expire.
+</Warning>
+
+### Query parameters
+
+You can pass optional query parameters to your Checkout Links.
+
+#### Prepopulate fields
+
+You can prefill the checkout fields with the following query parameters:
+
+<ParamField path="customer_email" type="string">
+  Prefill customer email at checkout
+</ParamField>
+
+<ParamField path="customer_name" type="string">
+  Prefill customer name at checkout
+</ParamField>
+
+<ParamField path="discount_code" type="string">
+  Prefill discount code
+</ParamField>
+
+<ParamField path="amount" type="string">
+  Prefill amount in case of Pay What You Want pricing
+</ParamField>
+
+<ParamField path="custom_field_data.{slug}" type="string">
+  Prefill checkout fields data, where `{slug}` is the slug of the custom field.
+</ParamField>
+
+#### Store attribution and reference metadata
+
+The following query parameters will automatically be set on Checkout [`metadata`](/api-reference/checkouts/get-session#response-metadata).
+
+<ParamField path="reference_id" type="string">
+  Your own reference ID for the checkout session.
+</ParamField>
+
+<ParamField path="utm_source" type="string">
+  UTM source of the checkout session.
+</ParamField>
+
+<ParamField path="utm_medium" type="string">
+  UTM medium of the checkout session.
+</ParamField>
+
+<ParamField path="utm_campaign" type="string">
+  UTM campaign of the checkout session.
+</ParamField>
+
+<ParamField path="utm_content" type="string">
+  UTM content of the checkout session.
+</ParamField>
+
+<ParamField path="utm_term" type="string">
+  UTM term of the checkout session.
+</ParamField>

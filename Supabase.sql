@@ -51,3 +51,20 @@ on storage.objects
 for all
 using (auth.role() = 'service_role')
 with check (auth.role() = 'service_role');
+
+-- Users table for premium state
+create table if not exists public.users (
+  id uuid primary key default gen_random_uuid(),
+  clerk_id text unique not null,
+  is_premium boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+alter table public.users enable row level security;
+
+-- Policies
+create policy if not exists "Service role full access"
+on public.users
+for all
+using (auth.role() = 'service_role')
+with check (auth.role() = 'service_role');

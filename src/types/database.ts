@@ -1,6 +1,27 @@
 export interface Database {
   public: {
     Tables: {
+      users: {
+        Row: {
+          id: string;
+          clerk_id: string;
+          is_premium: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          clerk_id: string;
+          is_premium?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          clerk_id?: string;
+          is_premium?: boolean;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       notes: {
         Row: {
           id: string;
