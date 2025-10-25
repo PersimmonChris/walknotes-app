@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
         } satisfies UsersTable["Insert"];
 
         const { error } = await supabase
-          .from<"users", UsersTable>("users")
+          .from("users")
           .upsert(upsertPayload, { onConflict: "clerk_id" })
           .select("clerk_id")
           .maybeSingle();
