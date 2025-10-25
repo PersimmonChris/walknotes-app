@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/server-client";
 import type { Database } from "@/types/database";
@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 
 type UsersTable = Database["public"]["Tables"]["users"];
 
-export async function POST(_req: NextRequest) {
+export async function POST() {
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

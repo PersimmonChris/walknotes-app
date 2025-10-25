@@ -27,12 +27,52 @@ export async function POST(req: NextRequest) {
       return new NextResponse("", { status: 500 });
     }
     const wh = new Webhook(secret);
-    const evt: any = wh.verify(rawBody, headers);
+    const evt: unknown = wh.verify(rawBody, headers);
 
-    const type: string = (evt?.type ?? evt?.event ?? "").toString();
-    const data: any = evt?.data ?? evt?.payload ?? evt ?? {};
-    const metadata: Record<string, any> = data?.metadata ?? {};
-    const referenceId: string | undefined = (metadata?.reference_id ?? metadata?.referenceId ?? "").toString() || undefined;
+    type UnknownRecord = Record<string, unknown>;
+
+    const typeCandidateA =
+      typeof evt === "object" && evt !== null && "type" in (evt as UnknownRecord)
+        ? (evt as UnknownRecord)["type"]
+        : undefined;
+    const typeCandidateB =
+      typeof evt === "object" && evt !== null && "event" in (evt as UnknownRecord)
+        ? (evt as UnknownRecord)["event"]
+        : undefined;
+    const type: string =
+      typeof typeCandidateA === "string"
+        ? typeCandidateA
+        : typeof typeCandidateB === "string"
+          ? typeCandidateB
+          : "";
+
+    const dataCandidateA =
+      typeof evt === "object" && evt !== null && "data" in (evt as UnknownRecord)
+        ? (evt as UnknownRecord)["data"]
+        : undefined;
+    const dataCandidateB =
+      typeof evt === "object" && evt !== null && "payload" in (evt as UnknownRecord)
+        ? (evt as UnknownRecord)["payload"]
+        : undefined;
+    const data: unknown = dataCandidateA ?? dataCandidateB ?? evt;
+
+    const metadataCandidate =
+      typeof data === "object" && data !== null && "metadata" in (data as UnknownRecord)
+        ? (data as UnknownRecord)["metadata"]
+        : undefined;
+    const metadata: Record<string, unknown> =
+      typeof metadataCandidate === "object" && metadataCandidate !== null
+        ? (metadataCandidate as Record<string, unknown>)
+        : {};
+
+    const refA = metadata["reference_id"];
+    const refB = metadata["referenceId"];
+    const referenceId: string | undefined =
+      typeof refA === "string" && refA.length > 0
+        ? refA
+        : typeof refB === "string" && refB.length > 0
+          ? refB
+          : undefined;
 
     logInfo("polar.webhook.received", "Received Polar webhook", {
       type,

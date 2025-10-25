@@ -8,6 +8,7 @@ import { getWritingStyleById, WRITING_STYLES } from "@/lib/styles";
 import { logError, logInfo, logWarn } from "@/lib/logger";
 import { transcribeAudio, rewriteTranscript } from "@/lib/ai";
 import type { Database } from "@/types/database";
+import type { PostgrestError } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
 
@@ -96,8 +97,9 @@ export async function POST(request: NextRequest) {
 
   let isPremium = false;
   if (userError) {
-    const code = (userError as any)?.code as string | undefined;
-    const message = (userError as any)?.message as string | undefined;
+    const pgErr = userError as PostgrestError | null;
+    const code = pgErr?.code;
+    const message = pgErr?.message;
     const missingUsers = code === "42P01" || (message && message.toLowerCase().includes("relation") && message.includes("users") && message.toLowerCase().includes("does not exist"));
     if (missingUsers) {
       // Fallback gracefully if users table hasn't been created yet
