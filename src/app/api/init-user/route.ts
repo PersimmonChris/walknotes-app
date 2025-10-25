@@ -17,13 +17,20 @@ export async function POST() {
   const supabase = getSupabaseAdminClient();
 
   try {
+    // Ensure user exists without changing premium state: upsert only clerk_id, no select
+    const upsertRes = await supabase
+      .from<"users", UsersTable>("users")
+      .upsert({ clerk_id: userId }, { onConflict: "clerk_id" });
+
+    if (upsertRes.error) {
+      throw upsertRes.error;
+    }
+
+    // Fetch current user state
     const { data, error } = await supabase
       .from<"users", UsersTable>("users")
-      .upsert(
-        { clerk_id: userId },
-        { onConflict: "clerk_id", ignoreDuplicates: true },
-      )
       .select("clerk_id, is_premium")
+      .eq("clerk_id", userId)
       .maybeSingle();
 
     if (error) {

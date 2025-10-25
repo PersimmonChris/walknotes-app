@@ -37,6 +37,7 @@ interface NotesResponse {
   page: number;
   pageSize: number;
   styles: WritingStyle[];
+  isPremium?: boolean;
 }
 
 const MAX_FREE_NOTES = 3;
@@ -113,6 +114,7 @@ export function DashboardView() {
   const [editedContent, setEditedContent] = React.useState("");
   const [editedTitle, setEditedTitle] = React.useState("");
   const [isSaving, setIsSaving] = React.useState(false);
+  const [isPremium, setIsPremium] = React.useState(false);
 
   const mediaRecorderRef = React.useRef<MediaRecorder | null>(null);
   const mediaStreamRef = React.useRef<MediaStream | null>(null);
@@ -163,6 +165,7 @@ export function DashboardView() {
         setPage(data.page);
         setPageSize(data.pageSize);
         setActiveStyles(data.styles);
+        setIsPremium(Boolean(data.isPremium));
       } catch (error) {
         console.error(error);
         createToast("Unable to load notes. Please refresh.", "error");
@@ -205,7 +208,7 @@ export function DashboardView() {
   }, [selectedNote]);
 
   const handleStartRecording = React.useCallback(async () => {
-    if (total >= MAX_FREE_NOTES) {
+    if (!isPremium && total >= MAX_FREE_NOTES) {
       setLimitReachedMessage("Go Premium and unlock unlimited notes.");
       setRecordingState("paywall");
       return;
@@ -247,7 +250,7 @@ export function DashboardView() {
       console.error(error);
       createToast("Microphone permission is required to record.", "error");
     }
-  }, [cleanupStream, createToast, total]);
+  }, [cleanupStream, createToast, total, isPremium]);
 
   const handleStopRecording = React.useCallback(() => {
     const recorder = mediaRecorderRef.current;
@@ -494,7 +497,7 @@ export function DashboardView() {
     }
   }, [createToast, editedContent, editedTitle, selectedNote]);
 
-  const usedNotes = Math.min(total, MAX_FREE_NOTES);
+  const usedNotes = isPremium ? total : Math.min(total, MAX_FREE_NOTES);
 
   return (
     <TooltipProvider>
@@ -504,7 +507,9 @@ export function DashboardView() {
             <div className="flex items-center gap-4">
               <UserButton afterSignOutUrl="/" />
               <div className="hidden text-sm text-slate-500 md:block">
-                Signed in · {usedNotes}/{MAX_FREE_NOTES} notes used
+                {isPremium
+                  ? `Signed in · Premium (unlimited)`
+                  : `Signed in · ${usedNotes}/${MAX_FREE_NOTES} notes used`}
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -523,10 +528,12 @@ export function DashboardView() {
               </SignOutButton>
             </div>
           </div>
-          <div className="flex flex-col items-center justify-between gap-4 rounded-3xl bg-[#0b1e3f]/5 px-6 py-4 text-sm text-[#0b1e3f] md:flex-row">
-            <div className="font-medium">Upgrade to Premium</div>
-            <div>No limits, unlimited notes, priority processing. Coming soon.</div>
-          </div>
+          {!isPremium && (
+            <div className="flex flex-col items-center justify-between gap-4 rounded-3xl bg-[#0b1e3f]/5 px-6 py-4 text-sm text-[#0b1e3f] md:flex-row">
+              <div className="font-medium">Upgrade to Premium</div>
+              <div>No limits, unlimited notes, priority processing. Coming soon.</div>
+            </div>
+          )}
         </header>
 
         <main className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 pb-32">

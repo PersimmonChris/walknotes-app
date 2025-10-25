@@ -36,6 +36,37 @@ export async function GET(request: NextRequest) {
   const from = (safePage - 1) * safePageSize;
   const to = from + safePageSize - 1;
 
+  // Determine premium status for the signed-in user
+  let isPremium = false;
+  try {
+    type UsersTable = Database["public"]["Tables"]["users"];
+    const { data: userRow, error: userError } = await supabase
+      .from<"users", UsersTable>("users")
+      .select("is_premium")
+      .eq("clerk_id", userId)
+      .maybeSingle();
+
+    if (userError) {
+      const pgErr = userError as PostgrestError | null;
+      const code = pgErr?.code;
+      const message = pgErr?.message;
+      const missingUsers =
+        code === "42P01" ||
+        (message && message.toLowerCase().includes("relation") && message.includes("users") && message.toLowerCase().includes("does not exist"));
+      if (missingUsers) {
+        logWarn("notes.list.users_table_missing", "users table not found; treating as non-premium", { userId });
+        isPremium = false;
+      } else {
+        throw userError;
+      }
+    } else {
+      isPremium = Boolean(userRow?.is_premium);
+    }
+  } catch (err) {
+    logError("notes.list.user_fetch_failed", "Failed to fetch user for premium check", { userId }, err);
+    return NextResponse.json({ error: "Unable to verify user status." }, { status: 500 });
+  }
+
   const { data, error, count } = await supabase
     .from<"notes", NotesTable>("notes")
     .select("*", { count: "exact" })
@@ -60,6 +91,7 @@ export async function GET(request: NextRequest) {
     pageSize: safePageSize,
     total: count ?? 0,
     styles: WRITING_STYLES,
+    isPremium,
   });
 }
 
