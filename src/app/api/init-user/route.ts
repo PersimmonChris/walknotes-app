@@ -20,8 +20,8 @@ export async function POST() {
     const { data, error } = await supabase
       .from<"users", UsersTable>("users")
       .upsert(
-        { clerk_id: userId, is_premium: false },
-        { onConflict: "clerk_id" },
+        { clerk_id: userId },
+        { onConflict: "clerk_id", ignoreDuplicates: true },
       )
       .select("clerk_id, is_premium")
       .maybeSingle();
